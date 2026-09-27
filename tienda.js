@@ -93,11 +93,15 @@ function card(p) {
       <span class="card-precio"><span class="ahora">${money(v.preventa)}</span><span class="antes">${money(v.regular)}</span></span>
       <span class="card-pie">
         <span class="puntos">${puntos}</span>
-        <span class="btn-agregar">${icoBolsa}<span>Agregar</span></span>
+        <span class="btn-agregar">${icoBolsa}<span>${p.variantes.length > 1 ? 'Elegir color' : 'Agregar'}</span></span>
       </span>
     </span>
   </button>`;
 }
+
+// En la versión de un solo archivo los banners viajan adentro (BANNERS);
+// en la del link se bajan de img/banners/.
+const bannerDe = id => (window.BANNERS && window.BANNERS[id]) || `img/banners/${id}.webp`;
 
 function banner(s) {
   const piezas = (s.portada.piezas || []).slice(0, 2);
@@ -108,7 +112,7 @@ function banner(s) {
       style="right:${sitios[i].r}%; top:${sitios[i].t}%; width:${sitios[i].w}%; max-height:${i ? 56 : 80}%">`).join('');
   const desde = Math.min(...s.productos.map(p => p.variantes[0].preventa));
   return `<div class="banner">
-    <img class="fondo" src="img/banners/${esc(s.id)}.webp" alt="" loading="lazy">
+    <img class="fondo" src="${esc(bannerDe(s.id))}" alt="" loading="lazy">
     ${imgs}
     <div class="banner-texto">
       <p class="sobre">${s.productos.length} artículos · desde ${money(desde)}</p>
@@ -183,15 +187,31 @@ $('#deptos').addEventListener('click', e => {
   if ($('#buscar').value || $('#orden').value !== 'depto') {
     $('#buscar').value = ''; $('#orden').value = 'depto'; pintarCatalogo();
   }
-  document.getElementById(b.dataset.ir)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  irA(b.dataset.ir);
 });
+
+/* Bajar hasta un departamento. Con scrollTo y no scrollIntoView: el
+   chip activo se centra solo mientras la página baja, y un segundo
+   scrollIntoView cancelaba el primero: tocabas "Macetas" y se frenaba
+   en Flores. */
+function irA(id) {
+  const el = document.getElementById(id);
+  if (!el) return;
+  const tope = $('.cabecera').offsetHeight + $('#deptos').offsetHeight + 8;
+  window.scrollTo({ top: el.getBoundingClientRect().top + window.scrollY - tope, behavior: 'smooth' });
+}
+function centrarChip(b) {
+  const nav = $('#deptos');
+  nav.scrollTo({ left: b.offsetLeft - (nav.clientWidth - b.offsetWidth) / 2, behavior: 'smooth' });
+}
 
 // El chip activo sigue al departamento que se está viendo.
 const espia = new IntersectionObserver(entradas => {
   entradas.forEach(en => {
     if (!en.isIntersecting) return;
     $$('#deptos button').forEach(b => b.classList.toggle('activo', b.dataset.ir === en.target.id));
-    $(`#deptos button[data-ir="${en.target.id}"]`)?.scrollIntoView({ inline: 'center', block: 'nearest' });
+    const chip = $(`#deptos button[data-ir="${en.target.id}"]`);
+    if (chip) centrarChip(chip);
   });
 }, { rootMargin: '-45% 0px -50% 0px' });
 function espiar() { $$('.depto').forEach(d => espia.observe(d)); }
@@ -201,7 +221,7 @@ $('#buscar').addEventListener('input', () => {
   clearTimeout(esperaBusqueda);
   esperaBusqueda = setTimeout(() => {
     pintarCatalogo(); espiar();
-    if ($('#buscar').value) document.getElementById('catalogo').scrollIntoView({ block: 'start' });
+    if ($('#buscar').value) irA('catalogo');
   }, 180);
 });
 $('#orden').addEventListener('change', () => { pintarCatalogo(); espiar(); });
@@ -262,9 +282,18 @@ $('#f-agregar').addEventListener('click', () => {
   brindis(`${cant} × ${p.nombre}${v.color ? ` (${v.color})` : ''} agregado`);
 });
 
+// Tocar la tarjeta abre la ficha. Tocar "Agregar" agrega directo si el
+// producto trae un solo color; si trae varios, abre la ficha para elegir.
 document.addEventListener('click', e => {
   const c = e.target.closest('.card');
-  if (c) abrirFicha(c.dataset.id);
+  if (!c) return;
+  const p = POR_ID.get(c.dataset.id);
+  if (p && e.target.closest('.btn-agregar') && p.variantes.length === 1) {
+    agregar(p, p.variantes[0], 1);
+    brindis(`${p.nombre} agregado a tu pedido`);
+    return;
+  }
+  abrirFicha(c.dataset.id);
 });
 
 /* ── Pedido ────────────────────────────────────────────────────── */
@@ -285,6 +314,15 @@ function agregar(p, v, cant) {
   const g = $('#contador'); g.classList.remove('late'); void g.offsetWidth; g.classList.add('late');
 }
 
+// La foto del renglón se busca en el catálogo abierto y no en lo guardado:
+// en la versión de un solo archivo las fotos van adentro y la ruta
+// guardada por la versión del link no existe.
+const fotoDe = x => {
+  for (const p of PRODUCTOS) for (const v of p.variantes)
+    if (v.sku === x.sku && v.color === x.color) return v.img;
+  return x.img;
+};
+
 const totales = () => pedido.reduce((a, x) => ({
   piezas: a.piezas + x.cant, regular: a.regular + x.regular * x.cant, preventa: a.preventa + x.preventa * x.cant,
 }), { piezas: 0, regular: 0, preventa: 0 });
@@ -299,7 +337,7 @@ function pintarPedido() {
     return;
   }
   $('#c-cuerpo').innerHTML = pedido.map(x => `<div class="renglon">
-    <img src="${esc(x.img)}" alt="">
+    <img src="${esc(fotoDe(x))}" alt="">
     <div><b>${esc(x.nombre)}</b><small>${[x.color, x.medida, 'Cód. ' + x.sku].filter(Boolean).map(esc).join(' · ')}</small>
       <span class="precio">${money(x.preventa * x.cant)}</span></div>
     <div class="mini">
@@ -376,7 +414,13 @@ function brindis(txt) {
   brindisT = setTimeout(() => { b.classList.remove('visible'); setTimeout(() => { b.hidden = true; }, 220); }, 2400);
 }
 
+/* La barra de departamentos se pega justo debajo de la cabecera, que
+   cambia de alto entre teléfono y computadora. */
+function pegarDeptos() { $('#deptos').style.top = $('.cabecera').offsetHeight + 'px'; }
+window.addEventListener('resize', pegarDeptos);
+
 /* ── Arranque ──────────────────────────────────────────────────── */
+pegarDeptos();
 pintarDeptos();
 pintarFavoritos();
 pintarCatalogo();
