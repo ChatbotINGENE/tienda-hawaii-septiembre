@@ -3,63 +3,114 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Hawaii — Catálogo Preventa Septiembre 2026</title>
-<meta name="description" content="Catálogo de preventa de nuevo producto: flores, follajes, macetas, coronas, juguetes y detalles con hasta 50% de ahorro. Pedidos por WhatsApp.">
+<title>Hawaii — Preventa de Septiembre 2026</title>
+<meta name="description" content="Preventa exclusiva de nuevo producto: flores, follajes, macetas, coronas, juguetes y detalles con hasta 50% de ahorro. Pedidos por WhatsApp.">
 <meta name="theme-color" content="#ffffff">
-<meta property="og:title" content="Hawaii — Catálogo Preventa Septiembre 2026">
-<meta property="og:description" content="Nuevo producto con hasta 50% de ahorro. Reservas hasta el 5 de octubre.">
 <link rel="icon" href="img/marca/logo-hawaii.png">
+<meta property="og:title" content="Hawaii — Preventa de Septiembre 2026">
+<meta property="og:description" content="Nuevo producto con hasta 50% de ahorro. Reservas hasta el 5 de octubre.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,500;0,600;1,500&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="catalogo.css?v=20260927110911">
+<link rel="stylesheet" href="tienda.css?v=20260927111206">
 </head>
 <body>
 
-<header class="barra">
-  <button class="btn-barra" id="abrir-indice" aria-label="Índice del catálogo">
-    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h10"/></svg>
-    <span>Índice</span>
-  </button>
-  <button class="barra-logo" id="ir-portada" aria-label="Ir a la portada">
+
+<!-- ══ Aviso de arriba: las condiciones en una línea, como en la tienda ══ -->
+<div class="aviso-top">
+  <span>Preventa exclusiva · Reservas hasta el <b>5 de octubre</b></span>
+  <span class="solo-ancho">Pago contra entrega · Entrega a domicilio disponible</span>
+</div>
+
+<header class="cabecera">
+  <a class="logo" href="#inicio" aria-label="Hawaii, inicio">
     <img src="img/marca/logo-hawaii.png" alt="Hawaii — Imagina, crea, comparte" width="1030" height="398">
-  </button>
-  <button class="btn-barra carrito-btn" id="abrir-carrito" aria-label="Ver mi pedido">
+  </a>
+  <label class="buscador">
+    <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="6.5"/><path d="m20 20-4.2-4.2"/></svg>
+    <input id="buscar" type="search" placeholder="Buscar producto o código" autocomplete="off">
+  </label>
+  <button class="btn-carrito" id="abrir-carrito" aria-label="Ver mi pedido">
     <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 8h14l-1.2 11.2a2 2 0 0 1-2 1.8H8.2a2 2 0 0 1-2-1.8L5 8Z"/><path d="M9 8V6.5a3 3 0 0 1 6 0V8"/></svg>
-    <span>Pedido</span>
-    <b class="globo" id="contador" hidden>0</b>
+    <span class="globo" id="contador" hidden>0</span>
   </button>
 </header>
 
-<main class="visor" id="visor" aria-label="Catálogo"></main>
+<nav class="deptos" id="deptos" aria-label="Departamentos"></nav>
 
-<nav class="pasos" aria-label="Pasar página">
-  <button class="paso" id="anterior" aria-label="Página anterior"><svg viewBox="0 0 24 24"><path d="M15 5 8 12l7 7"/></svg></button>
-  <div class="folio">
-    <span id="folio-texto">1 / 1</span>
-    <div class="regla"><i id="regla"></i></div>
+<main id="inicio">
+  <section class="hero">
+    <img src="img/banners/portada.webp" alt="" class="hero-foto">
+    <div class="hero-texto">
+      <img class="hero-logo" src="img/marca/logo-hawaii-blanco.png" alt="Hawaii" width="1030" height="398">
+      <p class="sobre">Nuevo producto · Septiembre 2026</p>
+      <h1>Preventa<br><em>exclusiva</em></h1>
+      <p class="bajada">Flores, follajes, macetas y todo para tu próxima celebración, a precio de preventa para quienes reservan primero.</p>
+      <div class="hero-pie">
+        <span class="sello-grande" id="hero-ahorro"></span>
+        <a class="btn-claro" href="#catalogo">Ver productos</a>
+      </div>
+    </div>
+  </section>
+
+  <section class="condiciones" aria-label="Condiciones">
+    <div><b>Mínimo $100</b><span>Monto mínimo de compra</span></div>
+    <div><b>Hasta el 5 de octubre</b><span>Reserva de pedido válida</span></div>
+    <div><b>Contra entrega</b><span>Transferencias y efectivo · No válido pago con tarjeta</span></div>
+    <div><b>Retiro o domicilio</b><span>En tienda o en centro de distribución Don Rua · Disponible entrega a domicilio</span></div>
+  </section>
+
+  <section class="bloque" id="favoritos">
+    <div class="bloque-titulo">
+      <h2>Los favoritos <em>de la preventa</em></h2>
+      <p>Los mayores ahorros de la temporada.</p>
+    </div>
+    <div class="carrusel" id="carrusel"></div>
+  </section>
+
+  <div id="catalogo">
+    <div class="barra-filtro">
+      <p id="resultado"></p>
+      <label>Ordenar
+        <select id="orden">
+          <option value="depto">Por departamento</option>
+          <option value="ahorro">Mayor ahorro</option>
+          <option value="menor">Menor precio</option>
+          <option value="mayor">Mayor precio</option>
+        </select>
+      </label>
+    </div>
+    <div id="departamentos"></div>
   </div>
-  <button class="paso" id="siguiente" aria-label="Página siguiente"><svg viewBox="0 0 24 24"><path d="m9 5 7 7-7 7"/></svg></button>
-</nav>
+</main>
 
-<!-- ══ Índice ══ -->
-<div class="telon" id="telon-indice" hidden>
-  <aside class="panel panel-izq" role="dialog" aria-modal="true" aria-labelledby="i-titulo">
-    <header><h2 id="i-titulo">Índice</h2><button class="cerrar" data-cerrar aria-label="Cerrar"><svg viewBox="0 0 24 24"><path d="m6 6 12 12M18 6 6 18"/></svg></button></header>
-    <ol class="i-lista" id="i-lista"></ol>
-  </aside>
-</div>
+<footer class="pie" id="contacto">
+  <div class="pie-marca">
+    <img class="pie-logo" src="img/marca/logo-hawaii.png" alt="Hawaii — Imagina, crea, comparte" width="1030" height="398" loading="lazy">
+    <p>Pedidos por WhatsApp</p>
+    <a class="pie-tel" id="pie-tel" href="#" target="_blank" rel="noopener"></a>
+  </div>
+  <div class="pie-col">
+    <h3>Condiciones</h3>
+    <div id="pie-condiciones"></div>
+  </div>
+  <div class="pie-col">
+    <h3>Dónde encontrarnos</h3>
+    <div id="pie-lugares"></div>
+  </div>
+</footer>
 
 <!-- ══ Ficha del producto ══ -->
 <div class="telon" id="telon-ficha" hidden>
   <article class="ficha" role="dialog" aria-modal="true" aria-labelledby="f-nombre">
     <button class="cerrar" data-cerrar aria-label="Cerrar"><svg viewBox="0 0 24 24"><path d="m6 6 12 12M18 6 6 18"/></svg></button>
-    <div class="ficha-foto"><img id="f-img" alt=""><span class="tag" id="f-tag"></span></div>
+    <div class="ficha-foto"><img id="f-img" alt=""><span class="tag-desc" id="f-tag"></span></div>
     <div class="ficha-datos">
       <p class="f-depto" id="f-depto"></p>
       <h2 id="f-nombre"></h2>
       <p class="f-cod" id="f-cod"></p>
-      <div class="f-precio">
+      <div class="precio-bloque">
         <span class="antes" id="f-antes"></span>
         <span class="ahora" id="f-ahora"></span>
         <span class="ahorras" id="f-ahorras"></span>
@@ -83,7 +134,7 @@
 
 <!-- ══ El pedido ══ -->
 <div class="telon" id="telon-carrito" hidden>
-  <aside class="panel panel-der" role="dialog" aria-modal="true" aria-labelledby="c-titulo">
+  <aside class="carrito" role="dialog" aria-modal="true" aria-labelledby="c-titulo">
     <header><h2 id="c-titulo">Mi pedido</h2><button class="cerrar" data-cerrar aria-label="Cerrar"><svg viewBox="0 0 24 24"><path d="m6 6 12 12M18 6 6 18"/></svg></button></header>
     <div class="c-cuerpo" id="c-cuerpo"></div>
     <footer class="c-pie" id="c-pie">
@@ -103,7 +154,7 @@
 
 <div class="brindis" id="brindis" hidden></div>
 
-<script src="datos.js?v=20260927110911"></script>
-<script src="catalogo.js?v=20260927110911"></script>
+<script src="datos.js?v=20260927111206"></script>
+<script src="tienda.js?v=20260927111206"></script>
 </body>
 </html>
